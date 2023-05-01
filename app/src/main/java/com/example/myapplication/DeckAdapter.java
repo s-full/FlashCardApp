@@ -64,4 +64,12 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.ViewHolder> {
     public int getItemCount() {
         return deck.getSize();
     }
+
+    public void setDeck(FlashCardDeck newDeck) {
+        this.deck = newDeck;
+        this.notifyDataSetChanged();
+    }
+//    public DeckAdapter getAdapter() {
+//        return
+//    }
 }

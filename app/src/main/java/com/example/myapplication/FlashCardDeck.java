@@ -33,6 +33,8 @@ public class FlashCardDeck implements Serializable {
         return deckName;
     }
 
+    public void setFlashDeck(ArrayList<FlashCard> fd) {this.flashDeck = fd;}
+
     public void setDeckName(String deckName) {
         this.deckName = deckName;
     }

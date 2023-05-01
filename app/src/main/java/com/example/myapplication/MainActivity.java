@@ -3,28 +3,58 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
     private Button newButton, viewButton;
-    private ArrayList<FlashCardDeck> deckList = new ArrayList<>();
+    public ArrayList<FlashCardDeck> deckList;
     private static final int MAKE_NEW_DECK_REQUEST_CODE = 0;
+
+    // Shared preferences object
+    private SharedPreferences mPreferences;
+
+    // Name of shared preferences file
+    private String sharedPrefFile =
+            "com.example.android.hellosharedprefs";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+        Gson gson = new Gson();
+
+        String json = mPreferences.getString("decklist", null);
+        Type type = new TypeToken<ArrayList<FlashCardDeck>>() {}.getType();
+        deckList = gson.fromJson(json, type);
+
+        if (null == deckList) {
+            deckList = new ArrayList<FlashCardDeck>();
+            populateTwoDecks();
+        }
+        else {
+            Toast.makeText(this, "Loaded saved decks", Toast.LENGTH_SHORT).show();
+        }
+
         setContentView(R.layout.activity_main);
-        populateOneDeck();
+
+
+
 
         newButton = findViewById(R.id.new_deck_button);
         viewButton = findViewById(R.id.view_deck_button);
 
         newButton.setOnClickListener(view -> launchMakeNewDeck());
-
         viewButton.setOnClickListener(view -> launchViewDecks());
     }
 
@@ -50,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public void populateOneDeck() {
+    public void populateTwoDecks() {
         FlashCardDeck spanishNumbers = new FlashCardDeck("Spanish numbers");
         spanishNumbers.addCard(new FlashCard("One", "Uno"));
         spanishNumbers.addCard(new FlashCard("Two","Dos"));
@@ -79,4 +109,16 @@ public class MainActivity extends AppCompatActivity {
 
         deckList.add(germanNumbers);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //mPreferences = getSharedPreferences(sharedPrefFile, MODE_PRIVATE);
+        SharedPreferences.Editor preferencesEditor = mPreferences.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(deckList);
+        preferencesEditor.putString("decklist", json);
+    }
+
+
 }
